@@ -8,7 +8,7 @@ public enum NetworkActivityChangeType {
 /// Notify a request's network activity changes (request begins or ends).
 public final class NetworkActivityPlugin: PluginType {
 
-    public typealias NetworkActivityClosure = (_ change: NetworkActivityChangeType, _ target: TargetType) -> Void
+    public typealias NetworkActivityClosure = (_ change: NetworkActivityChangeType, _ target: TargetType, _ errorCode: Int) -> Void
     let networkActivityClosure: NetworkActivityClosure
 
     /// Initializes a NetworkActivityPlugin.
@@ -20,11 +20,12 @@ public final class NetworkActivityPlugin: PluginType {
 
     /// Called by the provider as soon as the request is about to start
     public func willSend(_ request: RequestType, target: TargetType) {
-        networkActivityClosure(.began, target)
+        networkActivityClosure(.began, target, -1)
     }
 
     /// Called by the provider as soon as a response arrives, even if the request is canceled.
     public func didReceive(_ result: Result<Moya.Response, MoyaError>, target: TargetType) {
-        networkActivityClosure(.ended, target)
+        networkActivityClosure(.ended, target, result.value?.statusCode ?? -1)
     }
 }
+
